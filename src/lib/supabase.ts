@@ -66,20 +66,33 @@ export async function submitInquiry(data: InquiryPayload): Promise<{
     };
 
     if (supabase && isSupabaseConfigured) {
+      console.log('[Supabase] Attempting insert into table "inquiries" at:', supabaseUrl);
       const { error } = await supabase.from('inquiries').insert([formattedRecord]);
       if (error) {
-        console.warn('Supabase insert warning, falling back to local vault:', error.message);
+        console.error('[Supabase Insert Error]:', error.message, error.details, error.hint);
         saveToLocalVault(formattedRecord);
-        return { success: true, isDemo: true, message: 'Saved with local fallback' };
+        return {
+          success: true,
+          isDemo: true,
+          message: `Supabase Error: ${error.message}${error.hint ? ' (' + error.hint + ')' : ''}`,
+          error: error.message,
+        };
       }
-      return { success: true, isDemo: false, message: 'Saved to Supabase cloud' };
+      console.log('[Supabase] Successfully saved inquiry to cloud database!');
+      return { success: true, isDemo: false, message: 'Saved directly to Supabase Cloud' };
     } else {
-      // Local demo mode fallback
+      console.warn(
+        '[Supabase] Not configured in this build. Checked VITE_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_URL, and SUPABASE_URL.'
+      );
       saveToLocalVault(formattedRecord);
-      return { success: true, isDemo: true, message: 'Saved to local concierge memory' };
+      return {
+        success: true,
+        isDemo: true,
+        message: 'Saved to Offline Vault (Supabase credentials are not connected to this build)',
+      };
     }
   } catch (err: unknown) {
-    console.error('Inquiry submission error:', err);
+    console.error('[Supabase Submission Exception]:', err);
     return { success: false, isDemo: true, error: (err as Error)?.message || 'Submission failed' };
   }
 }

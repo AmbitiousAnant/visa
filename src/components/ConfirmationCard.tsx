@@ -18,12 +18,14 @@ interface ConfirmationCardProps {
   };
   onReset: () => void;
   isDemo?: boolean;
+  syncMessage?: string;
 }
 
 export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
   formData,
   onReset,
   isDemo,
+  syncMessage,
 }) => {
   // Determine displayed destination
   const destination =
@@ -88,9 +90,26 @@ export const ConfirmationCard: React.FC<ConfirmationCardProps> = ({
         <span>{isDemo ? 'VIP Consultation Recorded' : 'VIP Doorstep Consultation Booked'}</span>
       </div>
 
-      <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-ivory-100 mb-4">
+      <h3 className="font-serif text-2xl sm:text-3xl font-extrabold text-ivory-100 mb-3">
         Thank You, {formData.fullName}!
       </h3>
+
+      {/* Cloud vs Local Vault Status Banner */}
+      {isDemo ? (
+        <div className="mb-6 p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs max-w-lg mx-auto text-left">
+          <div className="font-bold flex items-center gap-1.5 text-amber-300 mb-0.5">
+            <span>⚠️ Stored in Offline Vault</span>
+          </div>
+          <p className="text-[11px] text-amber-200/90 leading-relaxed font-light">
+            {syncMessage || 'Supabase credentials are not connected to this build. Data saved safely in your local browser vault.'}
+          </p>
+        </div>
+      ) : (
+        <div className="mb-6 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs max-w-lg mx-auto flex items-center justify-center gap-2">
+          <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+          <span className="font-semibold text-xs">Directly Synced to Supabase Cloud Table (public.inquiries)</span>
+        </div>
+      )}
 
       {/* Specific user prompt message */}
       <div className="p-5 rounded-2xl bg-obsidian-950/70 border border-gold-500/20 text-slate-200 text-sm sm:text-base leading-relaxed mb-6 font-light max-w-xl mx-auto">

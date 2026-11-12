@@ -67,6 +67,7 @@ export const InquiryFormContent: React.FC<InquiryFormContentProps> = ({
   const [loading, setLoading] = useState(false);
   const [submittedData, setSubmittedData] = useState<InquiryPayload | null>(null);
   const [isDemoResult, setIsDemoResult] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   // Sync when initial props change
@@ -118,6 +119,7 @@ export const InquiryFormContent: React.FC<InquiryFormContentProps> = ({
 
     if (result.success) {
       setIsDemoResult(result.isDemo);
+      setSyncMessage(result.message || '');
       setSubmittedData(payload);
     } else {
       setErrorMessage(result.error || 'Failed to submit inquiry. Please retry or contact directly on WhatsApp.');
@@ -126,6 +128,7 @@ export const InquiryFormContent: React.FC<InquiryFormContentProps> = ({
 
   const handleReset = () => {
     setSubmittedData(null);
+    setSyncMessage('');
     setFullName('');
     setPhone('');
     setEmail('');
@@ -134,7 +137,14 @@ export const InquiryFormContent: React.FC<InquiryFormContentProps> = ({
   };
 
   if (submittedData) {
-    return <ConfirmationCard formData={submittedData} onReset={handleReset} isDemo={isDemoResult} />;
+    return (
+      <ConfirmationCard
+        formData={submittedData}
+        onReset={handleReset}
+        isDemo={isDemoResult}
+        syncMessage={syncMessage}
+      />
+    );
   }
 
   return (
